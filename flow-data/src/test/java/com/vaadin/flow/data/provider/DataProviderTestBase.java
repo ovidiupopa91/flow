@@ -173,7 +173,7 @@ public abstract class DataProviderTestBase<D extends DataProvider<StrBean, Seria
 
     @Test
     public void filteringListDataProvider_convertFilter() {
-        DataProvider<StrBean, String> strFilterDataProvider = dataProvider
+        DynamicDataProvider<StrBean, String> strFilterDataProvider = dataProvider
                 .withConvertedFilter(
                         text -> strBean -> strBean.getValue().contains(text));
         Assert.assertEquals("Only one item should match 'Xyz'", 1,
@@ -233,7 +233,7 @@ public abstract class DataProviderTestBase<D extends DataProvider<StrBean, Seria
     }
 
     protected static <F> void assertSizeWithFilter(int expectedSize,
-            DataProvider<?, F> dataProvider, F filterValue) {
+                                                   DynamicDataProvider<?, F> dataProvider, F filterValue) {
         Assert.assertEquals(expectedSize,
                 dataProvider.size(new Query<>(filterValue)));
     }

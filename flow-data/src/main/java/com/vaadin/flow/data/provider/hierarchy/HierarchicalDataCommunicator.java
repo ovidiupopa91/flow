@@ -28,7 +28,7 @@ import com.vaadin.flow.data.provider.CompositeDataGenerator;
 import com.vaadin.flow.data.provider.DataChangeEvent;
 import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataGenerator;
-import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.DynamicDataProvider;
 import com.vaadin.flow.data.provider.KeyMapper;
 import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalArrayUpdater.HierarchicalUpdate;
@@ -276,7 +276,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
      */
     @Override
     public <F> SerializableConsumer<F> setDataProvider(
-            DataProvider<T, F> dataProvider, F initialFilter) {
+            DynamicDataProvider<T, F> dataProvider, F initialFilter) {
         if (dataProvider instanceof HierarchicalDataProvider) {
             return setDataProvider(
                     (HierarchicalDataProvider<T, F>) dataProvider,

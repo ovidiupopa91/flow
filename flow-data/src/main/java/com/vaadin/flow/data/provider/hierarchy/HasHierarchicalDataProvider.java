@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.vaadin.flow.data.binder.HasDataProvider;
+import com.vaadin.flow.data.binder.HasDynamicDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.function.ValueProvider;
@@ -36,7 +37,7 @@ import com.vaadin.flow.function.ValueProvider;
  *            the item data type
  * @since 1.2
  */
-public interface HasHierarchicalDataProvider<T> extends HasDataProvider<T> {
+public interface HasHierarchicalDataProvider<T> extends HasDynamicDataProvider<T> {
 
     public HierarchicalDataProvider<T, SerializablePredicate<T>> getDataProvider();
 

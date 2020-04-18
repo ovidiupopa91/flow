@@ -70,7 +70,7 @@ public class InMemoryDataProviderHelpers {
      *            the data provider object type
      * @return the wrapped data provider
      */
-    public static <T, V, Q> DataProvider<T, Q> filteringByIgnoreNull(
+    public static <T, V, Q> DynamicDataProvider<T, Q> filteringByIgnoreNull(
             InMemoryDataProvider<T> dataProvider,
             ValueProvider<T, V> valueProvider,
             SerializableBiPredicate<V, Q> predicate) {
@@ -98,7 +98,7 @@ public class InMemoryDataProviderHelpers {
      *            the data provider object type
      * @return the wrapped data provider
      */
-    public static <T> DataProvider<T, String> filteringByCaseInsensitiveString(
+    public static <T> DynamicDataProvider<T, String> filteringByCaseInsensitiveString(
             InMemoryDataProvider<T> dataProvider,
             ValueProvider<T, String> valueProvider,
             SerializableBiPredicate<String, String> predicate,

@@ -322,7 +322,7 @@ public interface InMemoryDataProvider<T> extends
      * 
      * @return a data provider that filters accordingly, not <code>null</code>
      */
-    default <Q> DataProvider<T, Q> filteringBy(
+    default <Q> DynamicDataProvider<T, Q> filteringBy(
             SerializableBiPredicate<T, Q> predicate) {
         Objects.requireNonNull(predicate, "Predicate cannot be null");
 
@@ -354,7 +354,7 @@ public interface InMemoryDataProvider<T> extends
      * 
      * @return a data provider that filters accordingly, not <code>null</code>
      */
-    default <V, Q> DataProvider<T, Q> filteringBy(
+    default <V, Q> DynamicDataProvider<T, Q> filteringBy(
             ValueProvider<T, V> valueProvider,
             SerializableBiPredicate<V, Q> predicate) {
         Objects.requireNonNull(valueProvider, "Value provider cannot be null");
@@ -378,7 +378,7 @@ public interface InMemoryDataProvider<T> extends
      *
      * @return a data provider that filters accordingly, not <code>null</code>
      */
-    default <V> DataProvider<T, V> filteringByEquals(
+    default <V> DynamicDataProvider<T, V> filteringByEquals(
             ValueProvider<T, V> valueProvider) {
         return filteringBy(valueProvider, Objects::equals);
     }
@@ -398,7 +398,7 @@ public interface InMemoryDataProvider<T> extends
      *            not <code>null</code>
      * @return a data provider that filters accordingly, not <code>null</code>
      */
-    default DataProvider<T, String> filteringBySubstring(
+    default DynamicDataProvider<T, String> filteringBySubstring(
             ValueProvider<T, String> valueProvider, Locale locale) {
         Objects.requireNonNull(locale, "Locale cannot be null");
         return InMemoryDataProviderHelpers.filteringByCaseInsensitiveString(
@@ -420,7 +420,7 @@ public interface InMemoryDataProvider<T> extends
      *            <code>null</code>
      * @return a data provider that filters accordingly, not <code>null</code>
      */
-    default DataProvider<T, String> filteringBySubstring(
+    default DynamicDataProvider<T, String> filteringBySubstring(
             ValueProvider<T, String> valueProvider) {
         return InMemoryDataProviderHelpers.filteringByCaseInsensitiveString(
                 this, valueProvider, String::contains,
@@ -442,7 +442,7 @@ public interface InMemoryDataProvider<T> extends
      *            not <code>null</code>
      * @return a data provider that filters accordingly, not <code>null</code>
      */
-    default DataProvider<T, String> filteringByPrefix(
+    default DynamicDataProvider<T, String> filteringByPrefix(
             ValueProvider<T, String> valueProvider, Locale locale) {
         return InMemoryDataProviderHelpers.filteringByCaseInsensitiveString(this, valueProvider,
                 String::startsWith, () -> locale);
@@ -462,7 +462,7 @@ public interface InMemoryDataProvider<T> extends
      *            <code>null</code>
      * @return a data provider that filters accordingly, not <code>null</code>
      */
-    default DataProvider<T, String> filteringByPrefix(
+    default DynamicDataProvider<T, String> filteringByPrefix(
             ValueProvider<T, String> valueProvider) {
         return InMemoryDataProviderHelpers.filteringByCaseInsensitiveString(this, valueProvider,
                 String::startsWith, InMemoryDataProviderHelpers.CURRENT_LOCALE_SUPPLIER);

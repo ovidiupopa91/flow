@@ -190,7 +190,7 @@ public class ListDataProviderTest
 
     @Test
     public void filteringBy_itemPredicate() {
-        DataProvider<StrBean, String> filteringBy = dataProvider.filteringBy(
+        DynamicDataProvider<StrBean, String> filteringBy = dataProvider.filteringBy(
                 (item, filterValue) -> item.getValue().equals(filterValue));
 
         assertSizeWithFilter(36, filteringBy, "Foo");
@@ -198,7 +198,7 @@ public class ListDataProviderTest
 
     @Test
     public void filteringBy_equals() {
-        DataProvider<StrBean, String> filteringBy = dataProvider
+        DynamicDataProvider<StrBean, String> filteringBy = dataProvider
                 .filteringByEquals(StrBean::getValue);
 
         assertSizeWithFilter(36, filteringBy, "Foo");
@@ -206,7 +206,7 @@ public class ListDataProviderTest
 
     @Test
     public void filteringBy_propertyValuePredicate() {
-        DataProvider<StrBean, Integer> filteringBy = dataProvider.filteringBy(
+        DynamicDataProvider<StrBean, Integer> filteringBy = dataProvider.filteringBy(
                 StrBean::getId,
                 (propertyValue, filterValue) -> propertyValue >= filterValue);
 
@@ -215,7 +215,7 @@ public class ListDataProviderTest
 
     @Test
     public void filteringBy_caseInsensitiveSubstring() {
-        DataProvider<StrBean, String> filteringBy = dataProvider
+        DynamicDataProvider<StrBean, String> filteringBy = dataProvider
                 .filteringBySubstring(StrBean::getValue, Locale.ENGLISH);
 
         assertSizeWithFilter(36, filteringBy, "oo");
@@ -224,7 +224,7 @@ public class ListDataProviderTest
 
     @Test
     public void filterBy_caseInsensitivePrefix() {
-        DataProvider<StrBean, String> filteringBy = dataProvider
+        DynamicDataProvider<StrBean, String> filteringBy = dataProvider
                 .filteringByPrefix(StrBean::getValue, Locale.ENGLISH);
 
         assertSizeWithFilter(36, filteringBy, "Fo");

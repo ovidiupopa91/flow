@@ -87,7 +87,7 @@ public class DataCommunicator<T> implements Serializable {
     // Update ids that have been confirmed since the last flush
     private final HashSet<Integer> confirmedUpdates = new HashSet<>();
 
-    private DataProvider<T, ?> dataProvider = DataProvider.ofItems();
+    private DynamicDataProvider<T, ?> dataProvider = DataProvider.ofItems();
 
     // Serializability of filter is up to the application
     private Object filter;
@@ -100,6 +100,8 @@ public class DataCommunicator<T> implements Serializable {
 
     private SerializableConsumer<ExecutionContext> flushRequest;
     private SerializableConsumer<ExecutionContext> flushUpdatedDataRequest;
+
+    private ItemsFetchStrategy itemsFetchStrategy = this::defaultItemsFetchStrategy;
 
     private static class SizeVerifier<T> implements Consumer<T>, Serializable {
 
@@ -202,7 +204,8 @@ public class DataCommunicator<T> implements Serializable {
 
         // Not absolutely necessary, but doing it right away to release memory
         // earlier
-        requestFlush();
+        //TODO: falls in infinite loop once uncommented...
+        //requestFlush();
     }
 
     /**
@@ -210,7 +213,7 @@ public class DataCommunicator<T> implements Serializable {
      *
      * @return the data provider
      */
-    public DataProvider<T, ?> getDataProvider() {
+    public DynamicDataProvider<T, ?> getDataProvider() {
         return dataProvider;
     }
 
@@ -233,7 +236,7 @@ public class DataCommunicator<T> implements Serializable {
      * @return a consumer that accepts a new filter value to use
      */
     public <F> SerializableConsumer<F> setDataProvider(
-            DataProvider<T, F> dataProvider, F initialFilter) {
+            DynamicDataProvider<T, F> dataProvider, F initialFilter) {
         Objects.requireNonNull(dataProvider, "data provider cannot be null");
         filter = initialFilter;
 
@@ -243,6 +246,8 @@ public class DataCommunicator<T> implements Serializable {
         getKeyMapper().removeAll();
 
         this.dataProvider = dataProvider;
+        this.itemsFetchStrategy = dataProvider instanceof DataProvider ?
+                this::defaultItemsFetchStrategy : this::dynamicItemsFetchStrategy;
 
         getKeyMapper().setIdentifierGetter(dataProvider::getId);
 
@@ -444,15 +449,34 @@ public class DataCommunicator<T> implements Serializable {
     private void flush() {
         Set<String> oldActive = new HashSet<>(activeKeyOrder);
 
-        Range effectiveRequested;
         final Range previousActive = Range.withLength(activeStart,
                 activeKeyOrder.size());
 
         // Phase 1: Find all items that the client should have
+        Range effectiveRequested = itemsFetchStrategy.fetchItems(previousActive);
+
+        // Phase 2: Collect changes to send
+        Update update = arrayUpdater.startUpdate(assumedSize);
+
+        boolean updated = collectChangesToSend(previousActive,
+                effectiveRequested, update);
+
+        resendEntireRange = false;
+        assumeEmptyClient = false;
+
+        // Phase 3: passivate anything that isn't longer active
+        passivateInactiveKeys(oldActive, update, updated);
+
+        // Phase 4: unregister passivated and updated items
+        unregisterPassivatedKeys();
+    }
+
+    private Range defaultItemsFetchStrategy(Range previousActive) {
+
         if (resendEntireRange) {
             assumedSize = getDataProviderSize();
         }
-        effectiveRequested = requestedRange
+        Range effectiveRequested = requestedRange
                 .restrictTo(Range.withLength(0, assumedSize));
 
         resendEntireRange |= !(previousActive.intersects(effectiveRequested)
@@ -472,19 +496,26 @@ public class DataCommunicator<T> implements Serializable {
         activeKeyOrder = activation.getActiveKeys();
         activeStart = effectiveRequested.getStart();
 
-        // Phase 2: Collect changes to send
-        Update update = arrayUpdater.startUpdate(assumedSize);
-        boolean updated = collectChangesToSend(previousActive,
-                effectiveRequested, update);
+        return effectiveRequested;
+    }
 
-        resendEntireRange = false;
-        assumeEmptyClient = false;
+    private Range dynamicItemsFetchStrategy(Range previousActive) {
 
-        // Phase 3: passivate anything that isn't longer active
-        passivateInactiveKeys(oldActive, update, updated);
+        Range effectiveRequested = requestedRange;
 
-        // Phase 4: unregister passivated and updated items
-        unregisterPassivatedKeys();
+        Activation activation = activate(effectiveRequested);
+
+        activeKeyOrder = activation.getActiveKeys();
+        activeStart = effectiveRequested.getStart();
+
+        effectiveRequested = requestedRange
+                .restrictTo(Range.withLength(0, activeStart + activeKeyOrder.size()));
+
+        assumedSize = getDataProviderSize();
+
+        resendEntireRange = true;
+
+        return effectiveRequested;
     }
 
     private void flushUpdatedData() {
@@ -541,7 +572,7 @@ public class DataCommunicator<T> implements Serializable {
     }
 
     private boolean collectChangesToSend(final Range previousActive,
-            final Range effectiveRequested, Update update) {
+                                         final Range effectiveRequested, Update update) {
         boolean updated = false;
         if (assumeEmptyClient || resendEntireRange) {
             if (!assumeEmptyClient) {
@@ -579,7 +610,7 @@ public class DataCommunicator<T> implements Serializable {
     }
 
     private Activation collectKeysToFlush(final Range previousActive,
-            final Range effectiveRequested) {
+                                          final Range effectiveRequested) {
         /*
          * Collecting all items even though only some small sub range would
          * actually be useful can be optimized away once we have some actual
@@ -682,4 +713,9 @@ public class DataCommunicator<T> implements Serializable {
             return new Activation(Collections.emptyList(), false);
         }
     }
+
+    private interface ItemsFetchStrategy {
+        Range fetchItems(Range previousActive);
+    }
+
 }

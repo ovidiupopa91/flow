@@ -36,12 +36,12 @@ import com.vaadin.flow.shared.Registration;
  *            underlying data provider filter type
  */
 public abstract class DataProviderWrapper<T, F, M>
-        implements DataProvider<T, F> {
+        implements DynamicDataProvider<T, F> {
 
     /**
      * The actual data provider behind this wrapper.
      */
-    protected DataProvider<T, M> dataProvider;
+    protected DynamicDataProvider<T, M> dataProvider;
 
     /**
      * Constructs a filtering wrapper for a data provider.
@@ -49,7 +49,7 @@ public abstract class DataProviderWrapper<T, F, M>
      * @param dataProvider
      *            the wrapped data provider, not <code>null</code>
      */
-    protected DataProviderWrapper(DataProvider<T, M> dataProvider) {
+    protected DataProviderWrapper(DynamicDataProvider<T, M> dataProvider) {
         this.dataProvider = Objects.requireNonNull(dataProvider,
                 "The wrapped data provider cannot be null.");
     }

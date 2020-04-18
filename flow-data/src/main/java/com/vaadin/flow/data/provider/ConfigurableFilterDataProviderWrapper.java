@@ -46,7 +46,7 @@ public abstract class ConfigurableFilterDataProviderWrapper<T, Q, C, F>
      *            the data provider to wrap, not <code>null</code>
      */
     public ConfigurableFilterDataProviderWrapper(
-            DataProvider<T, F> dataProvider) {
+            DynamicDataProvider<T, F> dataProvider) {
         super(dataProvider);
     }
 

@@ -30,7 +30,7 @@ package com.vaadin.flow.data.provider;
  *            the configurable filter type
  */
 public interface ConfigurableFilterDataProvider<T, Q, C>
-        extends DataProvider<T, Q> {
+        extends DynamicDataProvider<T, Q> {
 
     /**
      * Sets the filter to use for all queries handled by this data provider.
