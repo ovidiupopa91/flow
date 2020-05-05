@@ -382,6 +382,16 @@ public class DataCommunicator<T> implements Serializable {
         return stream;
     }
 
+    protected int getAssumedSize() {
+        return assumedSize;
+    }
+    protected List<String> getActiveKeyOrdering() {
+        return activeKeyOrder;
+    }
+    protected Range getRequestedRange() {
+        return requestedRange;
+    }
+
     private String getInvalidContractMessage(String method) {
         return String.format("The data provider hasn't ever called %s() "
                 + "method on the provided query. "
